@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhangwenyu.resource.dao.RegisterMapper">
+  <resultMap id="BaseResultMap" type="com.zhangwenyu.resource.bean.Register">
+    <id column="register_id" jdbcType="VARCHAR" property="registerId" />
+    <result column="register_password" jdbcType="VARCHAR" property="registerPassword" />
+    <result column="register_name" jdbcType="VARCHAR" property="registerName" />
+    <result column="register_class" jdbcType="VARCHAR" property="registerClass" />
+    <result column="register_level" jdbcType="VARCHAR" property="registerLevel" />
+    <result column="register_check" jdbcType="INTEGER" property="registerCheck" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    register_id, register_password, register_name, register_class, register_level, register_check
+  </sql>
+  <select id="selectByExample" parameterType="com.zhangwenyu.resource.bean.RegisterExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from register
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from register
+    where register_id = #{registerId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from register
+    where register_id = #{registerId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.zhangwenyu.resource.bean.RegisterExample">
+    delete from register
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.zhangwenyu.resource.bean.Register">
+    insert into register (register_id, register_password, register_name, 
+      register_class, register_level, register_check
+      )
+    values (#{registerId,jdbcType=VARCHAR}, #{registerPassword,jdbcType=VARCHAR}, #{registerName,jdbcType=VARCHAR}, 
+      #{registerClass,jdbcType=VARCHAR}, #{registerLevel,jdbcType=VARCHAR}, #{registerCheck,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.zhangwenyu.resource.bean.Register">
+    insert into register
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="registerId != null">
+        register_id,
+      </if>
+      <if test="registerPassword != null">
+        register_password,
+      </if>
+      <if test="registerName != null">
+        register_name,
+      </if>
+      <if test="registerClass != null">
+        register_class,
+      </if>
+      <if test="registerLevel != null">
+        register_level,
+      </if>
+      <if test="registerCheck != null">
+        register_check,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="registerId != null">
+        #{registerId,jdbcType=VARCHAR},
+      </if>
+      <if test="registerPassword != null">
+        #{registerPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="registerName != null">
+        #{registerName,jdbcType=VARCHAR},
+      </if>
+      <if test="registerClass != null">
+        #{registerClass,jdbcType=VARCHAR},
+      </if>
+      <if test="registerLevel != null">
+        #{registerLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="registerCheck != null">
+        #{registerCheck,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.zhangwenyu.resource.bean.RegisterExample" resultType="java.lang.Long">
+    select count(*) from register
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update register
+    <set>
+      <if test="record.registerId != null">
+        register_id = #{record.registerId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.registerPassword != null">
+        register_password = #{record.registerPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="record.registerName != null">
+        register_name = #{record.registerName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.registerClass != null">
+        register_class = #{record.registerClass,jdbcType=VARCHAR},
+      </if>
+      <if test="record.registerLevel != null">
+        register_level = #{record.registerLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="record.registerCheck != null">
+        register_check = #{record.registerCheck,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update register
+    set register_id = #{record.registerId,jdbcType=VARCHAR},
+      register_password = #{record.registerPassword,jdbcType=VARCHAR},
+      register_name = #{record.registerName,jdbcType=VARCHAR},
+      register_class = #{record.registerClass,jdbcType=VARCHAR},
+      register_level = #{record.registerLevel,jdbcType=VARCHAR},
+      register_check = #{record.registerCheck,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zhangwenyu.resource.bean.Register">
+    update register
+    <set>
+      <if test="registerPassword != null">
+        register_password = #{registerPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="registerName != null">
+        register_name = #{registerName,jdbcType=VARCHAR},
+      </if>
+      <if test="registerClass != null">
+        register_class = #{registerClass,jdbcType=VARCHAR},
+      </if>
+      <if test="registerLevel != null">
+        register_level = #{registerLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="registerCheck != null">
+        register_check = #{registerCheck,jdbcType=INTEGER},
+      </if>
+    </set>
+    where register_id = #{registerId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zhangwenyu.resource.bean.Register">
+    update register
+    set register_password = #{registerPassword,jdbcType=VARCHAR},
+      register_name = #{registerName,jdbcType=VARCHAR},
+      register_class = #{registerClass,jdbcType=VARCHAR},
+      register_level = #{registerLevel,jdbcType=VARCHAR},
+      register_check = #{registerCheck,jdbcType=INTEGER}
+    where register_id = #{registerId,jdbcType=VARCHAR}
+  </update>
+</mapper>

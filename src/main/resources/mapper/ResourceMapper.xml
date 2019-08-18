@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhangwenyu.resource.dao.ResourceMapper">
+  <resultMap id="BaseResultMap" type="com.zhangwenyu.resource.bean.Resource">
+    <id column="resource_id" jdbcType="INTEGER" property="resourceId" />
+    <result column="resource_cid" jdbcType="INTEGER" property="resourceCid" />
+    <result column="resource_uid" jdbcType="VARCHAR" property="resourceUid" />
+    <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
+    <result column="resource_image" jdbcType="VARCHAR" property="resourceImage" />
+    <result column="resource_url" jdbcType="VARCHAR" property="resourceUrl" />
+    <result column="resource_desc" jdbcType="VARCHAR" property="resourceDesc" />
+    <result column="resource_level" jdbcType="VARCHAR" property="resourceLevel" />
+    <result column="resource_time" jdbcType="DATE" property="resourceTime" />
+    <result column="resource_good" jdbcType="INTEGER" property="resourceGood" />
+  </resultMap>
+<!--带有用户信息-->
+  <resultMap id="WithUserResultMap" type="com.zhangwenyu.resource.bean.Resource">
+    <id column="resource_id" jdbcType="INTEGER" property="resourceId" />
+    <result column="resource_cid" jdbcType="INTEGER" property="resourceCid" />
+    <result column="resource_uid" jdbcType="VARCHAR" property="resourceUid" />
+    <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
+    <result column="resource_image" jdbcType="VARCHAR" property="resourceImage" />
+    <result column="resource_url" jdbcType="VARCHAR" property="resourceUrl" />
+    <result column="resource_desc" jdbcType="VARCHAR" property="resourceDesc" />
+    <result column="resource_level" jdbcType="VARCHAR" property="resourceLevel" />
+    <result column="resource_time" jdbcType="DATE" property="resourceTime" />
+    <result column="resource_good" jdbcType="INTEGER" property="resourceGood" />
+    <!--指定联合查询出用户信息的字段的封装-->
+    <association property="user" javaType="com.zhangwenyu.resource.bean.User">
+      <id column="user_id" property="userId"></id>
+      <result column="user_level" property="userLevel"></result>
+    </association>
+    <!--指定联合查询出资源类别的字段的封装-->
+    <association property="categoryKey" javaType="com.zhangwenyu.resource.bean.CategoryKey">
+      <id column="category_id" property="categoryId"></id>
+      <id column="category_name" property="categoryName"></id>
+    </association>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    resource_id, resource_cid, resource_uid, resource_name, resource_image, resource_url, 
+    resource_desc, resource_level, resource_time, resource_good
+  </sql>
+  <sql id="WithUser_Column_List">
+    r.resource_id, r.resource_cid, r.resource_uid, r.resource_name, r.resource_image, r.resource_url,
+    r.resource_desc, r.resource_level, r.resource_time, r.resource_good,u.user_id,u.user_level,c.category_id,c.category_name
+  </sql>
+
+<!--带有用户信息-->
+  <select id="selectByExampleWithUser" resultMap="WithUserResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="WithUser_Column_List" />
+    from resource r
+    left join user u on r.resource_uid=u.user_id
+    left join category c on r.resource_cid=c.category_id
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <select id="selectByExample" parameterType="com.zhangwenyu.resource.bean.ResourceExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from resource
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+
+  <!--根据标题、类别、用户类型进行模糊查找-->
+  <select id="selectResourceByConditions" parameterType="com.zhangwenyu.resource.bean.Resource" resultMap="WithUserResultMap">
+  select
+  <include refid="WithUser_Column_List" />
+  from resource r
+  left join user u on r.resource_uid=u.user_id
+  left join category c on r.resource_cid=c.category_id
+  where 1 = 1
+
+  <if test="resourceName != null">
+    <if test="resourceName != ''">
+    AND r.resource_name LIKE CONCAT(CONCAT('%',#{resourceName},'%'))
+    </if>
+  </if>
+
+
+  <if test="resourceCid != null ">
+    <if test="resourceCid != -1">
+      AND r.resource_cid = #{resourceCid,jdbcType=INTEGER}
+
+    </if>
+  </if>
+
+
+  <if test="user.userLevel != null">
+    <if test="user.userLevel != ''">
+      AND u.user_level = #{user.userLevel,jdbcType=VARCHAR}
+    </if>
+  </if>
+
+
+</select>
+
+
+  <select id="countByConditions" parameterType="com.zhangwenyu.resource.bean.Resource" resultType="java.lang.Long">
+    select count(*)
+    from resource r
+    left join user u on r.resource_uid=u.user_id
+    left join category c on r.resource_cid=c.category_id
+    where 1 = 1
+
+    <if test="resourceName != null">
+      <if test="resourceName != ''">
+        AND r.resource_name LIKE CONCAT(CONCAT('%',#{resourceName},'%'))
+      </if>
+    </if>
+
+
+    <if test="resourceCid != null ">
+      <if test="resourceCid != -1">
+        AND r.resource_cid = #{resourceCid,jdbcType=INTEGER}
+
+      </if>
+    </if>
+
+
+    <if test="user.userLevel != null">
+      <if test="user.userLevel != ''">
+        AND u.user_level = #{user.userLevel,jdbcType=VARCHAR}
+      </if>
+    </if>
+
+
+  </select>
+
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="WithUserResultMap">
+    select 
+    <include refid="WithUser_Column_List" />
+    from resource r
+    left join user u on r.resource_uid=u.user_id
+    left join category c on r.resource_cid=c.category_id
+    where r.resource_id = #{resourceId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from resource
+    where resource_id = #{resourceId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.zhangwenyu.resource.bean.ResourceExample">
+    delete from resource
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.zhangwenyu.resource.bean.Resource">
+    insert into resource (resource_id, resource_cid, resource_uid, 
+      resource_name, resource_image, resource_url, 
+      resource_desc, resource_level, resource_time, 
+      resource_good)
+    values (#{resourceId,jdbcType=INTEGER}, #{resourceCid,jdbcType=INTEGER}, #{resourceUid,jdbcType=VARCHAR}, 
+      #{resourceName,jdbcType=VARCHAR}, #{resourceImage,jdbcType=VARCHAR}, #{resourceUrl,jdbcType=VARCHAR}, 
+      #{resourceDesc,jdbcType=VARCHAR}, #{resourceLevel,jdbcType=VARCHAR}, #{resourceTime,jdbcType=DATE}, 
+      #{resourceGood,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zhangwenyu.resource.bean.Resource"
+          useGeneratedKeys="true">
+    insert into resource
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="resourceCid != null">
+        resource_cid,
+      </if>
+      <if test="resourceUid != null">
+        resource_uid,
+      </if>
+      <if test="resourceName != null">
+        resource_name,
+      </if>
+      <if test="resourceImage != null">
+        resource_image,
+      </if>
+      <if test="resourceUrl != null">
+        resource_url,
+      </if>
+      <if test="resourceDesc != null">
+        resource_desc,
+      </if>
+      <if test="resourceLevel != null">
+        resource_level,
+      </if>
+      <if test="resourceTime != null">
+        resource_time,
+      </if>
+      <if test="resourceGood != null">
+        resource_good,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=INTEGER},
+      </if>
+      <if test="resourceCid != null">
+        #{resourceCid,jdbcType=INTEGER},
+      </if>
+      <if test="resourceUid != null">
+        #{resourceUid,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceName != null">
+        #{resourceName,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceImage != null">
+        #{resourceImage,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceUrl != null">
+        #{resourceUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceDesc != null">
+        #{resourceDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceLevel != null">
+        #{resourceLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceTime != null">
+        #{resourceTime,jdbcType=DATE},
+      </if>
+      <if test="resourceGood != null">
+        #{resourceGood,jdbcType=INTEGER},
+      </if>
+    </trim>
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="resourceId">
+      SELECT LAST_INSERT_ID() AS resourceId
+    </selectKey>
+  </insert>
+  <select id="countByExample" parameterType="com.zhangwenyu.resource.bean.ResourceExample" resultType="java.lang.Long">
+    select count(*) from resource
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update resource
+    <set>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=INTEGER},
+      </if>
+      <if test="record.resourceCid != null">
+        resource_cid = #{record.resourceCid,jdbcType=INTEGER},
+      </if>
+      <if test="record.resourceUid != null">
+        resource_uid = #{record.resourceUid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceName != null">
+        resource_name = #{record.resourceName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceImage != null">
+        resource_image = #{record.resourceImage,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceUrl != null">
+        resource_url = #{record.resourceUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceDesc != null">
+        resource_desc = #{record.resourceDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceLevel != null">
+        resource_level = #{record.resourceLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceTime != null">
+        resource_time = #{record.resourceTime,jdbcType=DATE},
+      </if>
+      <if test="record.resourceGood != null">
+        resource_good = #{record.resourceGood,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update resource
+    set resource_id = #{record.resourceId,jdbcType=INTEGER},
+      resource_cid = #{record.resourceCid,jdbcType=INTEGER},
+      resource_uid = #{record.resourceUid,jdbcType=VARCHAR},
+      resource_name = #{record.resourceName,jdbcType=VARCHAR},
+      resource_image = #{record.resourceImage,jdbcType=VARCHAR},
+      resource_url = #{record.resourceUrl,jdbcType=VARCHAR},
+      resource_desc = #{record.resourceDesc,jdbcType=VARCHAR},
+      resource_level = #{record.resourceLevel,jdbcType=VARCHAR},
+      resource_time = #{record.resourceTime,jdbcType=DATE},
+      resource_good = #{record.resourceGood,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zhangwenyu.resource.bean.Resource">
+    update resource
+    <set>
+      <if test="resourceCid != null">
+        resource_cid = #{resourceCid,jdbcType=INTEGER},
+      </if>
+      <if test="resourceUid != null">
+        resource_uid = #{resourceUid,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceName != null">
+        resource_name = #{resourceName,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceImage != null">
+        resource_image = #{resourceImage,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceUrl != null">
+        resource_url = #{resourceUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceDesc != null">
+        resource_desc = #{resourceDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceLevel != null">
+        resource_level = #{resourceLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceTime != null">
+        resource_time = #{resourceTime,jdbcType=DATE},
+      </if>
+      <if test="resourceGood != null">
+        resource_good = #{resourceGood,jdbcType=INTEGER},
+      </if>
+    </set>
+    where resource_id = #{resourceId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zhangwenyu.resource.bean.Resource">
+    update resource
+    set resource_cid = #{resourceCid,jdbcType=INTEGER},
+      resource_uid = #{resourceUid,jdbcType=VARCHAR},
+      resource_name = #{resourceName,jdbcType=VARCHAR},
+      resource_image = #{resourceImage,jdbcType=VARCHAR},
+      resource_url = #{resourceUrl,jdbcType=VARCHAR},
+      resource_desc = #{resourceDesc,jdbcType=VARCHAR},
+      resource_level = #{resourceLevel,jdbcType=VARCHAR},
+      resource_time = #{resourceTime,jdbcType=DATE},
+      resource_good = #{resourceGood,jdbcType=INTEGER}
+    where resource_id = #{resourceId,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhangwenyu.resource.dao.PostMapper">
+  <resultMap id="BaseResultMap" type="com.zhangwenyu.resource.bean.Post">
+    <id column="post_id" jdbcType="INTEGER" property="postId" />
+    <result column="post_uid" jdbcType="VARCHAR" property="postUid" />
+    <result column="post_title" jdbcType="VARCHAR" property="postTitle" />
+    <result column="post_text" jdbcType="VARCHAR" property="postText" />
+    <result column="post_image" jdbcType="VARCHAR" property="postImage" />
+    <result column="post_time" jdbcType="DATE" property="postTime" />
+  </resultMap>
+
+  <!--带有评论信息的结果集-->
+  <resultMap id="WithCommentResultMap" type="com.zhangwenyu.resource.bean.Post">
+    <id column="post_id" jdbcType="INTEGER" property="postId" />
+    <result column="post_uid" jdbcType="VARCHAR" property="postUid" />
+    <result column="post_title" jdbcType="VARCHAR" property="postTitle" />
+    <result column="post_text" jdbcType="VARCHAR" property="postText" />
+    <result column="post_image" jdbcType="VARCHAR" property="postImage" />
+    <result column="post_time" jdbcType="DATE" property="postTime" />
+
+    <!--指定联合查询出用户信息的字段的封装-->
+    <association property="user" javaType="com.zhangwenyu.resource.bean.User">
+    <id column="user_id" property="userId"></id>
+    <result column="user_level" property="userLevel"></result>
+    </association>
+    <!--指定联合查询出评论的字段的封装-->
+    <collection property="comment" ofType="com.zhangwenyu.resource.bean.Comment">
+      <id column="comment_id" property="commentId"></id>
+      <result column="comment_pid" property="commentPid"></result>
+      <result column="comment_uid" property="commentUid"></result>
+      <result column="comment_text" property="commentText"></result>
+      <result column="comment_time" property="commentTime"></result>
+    </collection>
+  </resultMap>
+
+  <resultMap id="WithUserResultMap" type="com.zhangwenyu.resource.bean.Post">
+    <id column="post_id" jdbcType="INTEGER" property="postId" />
+    <result column="post_uid" jdbcType="VARCHAR" property="postUid" />
+    <result column="post_title" jdbcType="VARCHAR" property="postTitle" />
+    <result column="post_text" jdbcType="VARCHAR" property="postText" />
+    <result column="post_image" jdbcType="VARCHAR" property="postImage" />
+    <result column="post_time" jdbcType="DATE" property="postTime" />
+    <!--指定联合查询出用户信息的字段的封装-->
+    <association property="user" javaType="com.zhangwenyu.resource.bean.User">
+      <id column="user_id" property="userId"></id>
+      <result column="user_level" property="userLevel"></result>
+    </association>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    post_id, post_uid, post_title, post_text, post_image, post_time
+  </sql>
+  <sql id="WithComment_Column_List">
+    p.post_id, p.post_uid, p.post_title, p.post_text, p.post_image, p.post_time,c.comment_id,c.comment_pid,
+    c.comment_uid,c.comment_text,c.comment_time,u.user_id,u.user_level
+  </sql>
+
+  <sql id="WithUser_Column_List">
+    p.post_id, p.post_uid, p.post_title, p.post_text, p.post_image, p.post_time,u.user_id,u.user_level
+  </sql>
+<!--查询个人帖子时带评论信息的-->
+  <select id="selectByPrimaryKeyWithComment" resultMap="WithCommentResultMap">
+    select
+    <include refid="WithComment_Column_List" />
+    from post p
+    left join comment c
+    on c.comment_pid=p.post_id
+    left join user u on p.post_uid=u.user_id
+    where p.post_id = #{postId,jdbcType=INTEGER}
+  </select>
+
+<!--查询全部帖子时带用户信息的-->
+  <select id="selectByExampleWithUser"  resultMap="WithUserResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="WithUser_Column_List" />
+    from post p
+    left join user u on p.post_uid=u.user_id
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+
+<!--根据标题、用户类型进行模糊查找-->
+  <select id="selectPostByConditions" parameterType="com.zhangwenyu.resource.bean.Post" resultMap="WithUserResultMap">
+    select
+    <include refid="WithUser_Column_List" />
+    from post p
+    left join user u on p.post_uid=u.user_id
+    where 1 = 1
+    <if test="postTitle !=null">
+      <if test="postTitle !=''">
+        and p.post_title  LIKE CONCAT(CONCAT('%',#{postTitle},'%'))
+      </if>
+    </if>
+    <if test="user.userLevel !=null">
+      <if test="user.userLevel !=''">
+        and u.user_level = #{user.userLevel,jdbcType=VARCHAR}
+      </if>
+    </if>
+  </select>
+
+  <select id="countByCondition" parameterType="com.zhangwenyu.resource.bean.Post" resultType="java.lang.Long">
+    select count(*)
+    from post p
+    left join user u on p.post_uid=u.user_id
+    where 1 = 1
+    <if test="postTitle !=null">
+      <if test="postTitle !=''">
+        and p.post_title  LIKE CONCAT(CONCAT('%',#{postTitle},'%'))
+      </if>
+    </if>
+    <if test="user.userLevel !=null">
+      <if test="user.userLevel !=''">
+        and u.user_level = #{user.userLevel,jdbcType=VARCHAR}
+      </if>
+    </if>
+  </select>
+
+
+
+  <select id="selectByExample" parameterType="com.zhangwenyu.resource.bean.PostExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from post
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from post
+    where post_id = #{postId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from post
+    where post_id = #{postId,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.zhangwenyu.resource.bean.PostExample">
+    delete from post
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.zhangwenyu.resource.bean.Post">
+    insert into post (post_id, post_uid, post_title, 
+      post_text, post_image, post_time
+      )
+    values (#{postId,jdbcType=INTEGER}, #{postUid,jdbcType=VARCHAR}, #{postTitle,jdbcType=VARCHAR}, 
+      #{postText,jdbcType=VARCHAR}, #{postImage,jdbcType=VARCHAR}, #{postTime,jdbcType=DATE}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.zhangwenyu.resource.bean.Post" useGeneratedKeys="true">
+    insert into post
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="postId != null">
+        post_id,
+      </if>
+      <if test="postUid != null">
+        post_uid,
+      </if>
+      <if test="postTitle != null">
+        post_title,
+      </if>
+      <if test="postText != null">
+        post_text,
+      </if>
+      <if test="postImage != null">
+        post_image,
+      </if>
+      <if test="postTime != null">
+        post_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="postId != null">
+        #{postId,jdbcType=INTEGER},
+      </if>
+      <if test="postUid != null">
+        #{postUid,jdbcType=VARCHAR},
+      </if>
+      <if test="postTitle != null">
+        #{postTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="postText != null">
+        #{postText,jdbcType=VARCHAR},
+      </if>
+      <if test="postImage != null">
+        #{postImage,jdbcType=VARCHAR},
+      </if>
+      <if test="postTime != null">
+        #{postTime,jdbcType=DATE},
+      </if>
+    </trim>
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="postId">
+      SELECT LAST_INSERT_ID() AS postId
+    </selectKey>
+  </insert>
+  <select id="countByExample" parameterType="com.zhangwenyu.resource.bean.PostExample" resultType="java.lang.Long">
+    select count(*) from post
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update post
+    <set>
+      <if test="record.postId != null">
+        post_id = #{record.postId,jdbcType=INTEGER},
+      </if>
+      <if test="record.postUid != null">
+        post_uid = #{record.postUid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.postTitle != null">
+        post_title = #{record.postTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="record.postText != null">
+        post_text = #{record.postText,jdbcType=VARCHAR},
+      </if>
+      <if test="record.postImage != null">
+        post_image = #{record.postImage,jdbcType=VARCHAR},
+      </if>
+      <if test="record.postTime != null">
+        post_time = #{record.postTime,jdbcType=DATE},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update post
+    set post_id = #{record.postId,jdbcType=INTEGER},
+      post_uid = #{record.postUid,jdbcType=VARCHAR},
+      post_title = #{record.postTitle,jdbcType=VARCHAR},
+      post_text = #{record.postText,jdbcType=VARCHAR},
+      post_image = #{record.postImage,jdbcType=VARCHAR},
+      post_time = #{record.postTime,jdbcType=DATE}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zhangwenyu.resource.bean.Post">
+    update post
+    <set>
+      <if test="postUid != null">
+        post_uid = #{postUid,jdbcType=VARCHAR},
+      </if>
+      <if test="postTitle != null">
+        post_title = #{postTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="postText != null">
+        post_text = #{postText,jdbcType=VARCHAR},
+      </if>
+      <if test="postImage != null">
+        post_image = #{postImage,jdbcType=VARCHAR},
+      </if>
+      <if test="postTime != null">
+        post_time = #{postTime,jdbcType=DATE},
+      </if>
+    </set>
+    where post_id = #{postId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zhangwenyu.resource.bean.Post">
+    update post
+    set post_uid = #{postUid,jdbcType=VARCHAR},
+      post_title = #{postTitle,jdbcType=VARCHAR},
+      post_text = #{postText,jdbcType=VARCHAR},
+      post_image = #{postImage,jdbcType=VARCHAR},
+      post_time = #{postTime,jdbcType=DATE}
+    where post_id = #{postId,jdbcType=INTEGER}
+  </update>
+</mapper>
