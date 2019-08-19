@@ -1,13 +1,8 @@
 package com.zhangwenyu.resource.service;
 
-import com.zhangwenyu.resource.bean.Msg;
+
 import com.zhangwenyu.resource.bean.Post;
-import com.zhangwenyu.resource.bean.PostExample;
-import com.zhangwenyu.resource.dao.PostMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+
 
 import java.util.List;
 
@@ -15,71 +10,24 @@ import java.util.List;
 /**
  * 帖子的业务层
  */
-@Service
-public class PostService {
-    @Autowired
-    PostMapper postMapper;
+
+public interface PostService {
 
 
 
-    public List<Post> getAllPost(){
+     List<Post> getAllPost();
 
-        List<Post> posts = postMapper.selectByExampleWithUser(null);
+     Post getPostById(Integer pid);
 
-        return posts;
-    }
+     List<Post> getSomeOnePosts(List<String> uid);
 
+     void deletePostById(int parseInt);
 
-    public Post getPostById(Integer pid) {
+     int insertPost(Post post);
 
-        Post post = postMapper.selectByPrimaryKeyWithComment(pid);
-        return post;
-    }
+     List<Post> getPostByCondition(Post post) ;
 
+     long countByCondition(Post post);
 
-    public List<Post> getSomeOnePosts(List<String> uid){
-        PostExample postExample = new PostExample();
-        PostExample.Criteria criteria = postExample.createCriteria();
-        criteria.andPostUidIn(uid);
-        List<Post> posts = postMapper.selectByExampleWithUser(postExample);
-        return posts;
-
-
-    }
-
-
-    public void deletePostById(int parseInt) {
-        postMapper.deleteByPrimaryKey(parseInt);
-    }
-
-
-
-
-    public int insertPost(Post post){
-
-      int i =  postMapper.insertSelective(post);
-
-      return i;
-    }
-
-    public List<Post> getPostByCondition(Post post) {
-        List<Post> posts = postMapper.selectPostByConditions(post);
-        return posts;
-    }
-
-    public long countByCondition(Post post){
-        long i = postMapper.countByCondition(post);
-        return i;
-    }
-
-
-
-    public int deletePost(List<Integer>list){
-        PostExample postExample = new PostExample();
-        PostExample.Criteria criteria = postExample.createCriteria();
-        criteria.andPostIdIn(list);
-        int i = 0;
-        i = postMapper.deleteByExample(postExample);
-        return  i;
-    }
+     int deletePost(List<Integer>list);
 }

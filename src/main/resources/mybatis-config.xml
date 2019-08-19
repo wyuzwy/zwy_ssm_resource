@@ -6,9 +6,11 @@
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
+
     <typeAliases>
         <package name="com.zhangwenyu.resource.bean"></package>
     </typeAliases>
+    <!--配置分页插件-->
     <plugins>
         <plugin interceptor="com.github.pagehelper.PageInterceptor">
             <!--分页参数合理化（不可能为-1页）-->

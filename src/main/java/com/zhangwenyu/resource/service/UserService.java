@@ -3,74 +3,27 @@ package com.zhangwenyu.resource.service;
 import com.zhangwenyu.resource.bean.Student;
 import com.zhangwenyu.resource.bean.Teacher;
 import com.zhangwenyu.resource.bean.User;
-import com.zhangwenyu.resource.bean.UserExample;
-import com.zhangwenyu.resource.dao.StudentMapper;
-import com.zhangwenyu.resource.dao.TeacherMapper;
-import com.zhangwenyu.resource.dao.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
-public class UserService {
 
-    @Autowired
-    UserMapper userMapper;
-
-    @Autowired
-    StudentMapper studentMapper;
-
-    @Autowired
-    TeacherMapper teacherMapper;
-
-    public User getUserById(String uid){
-
-        User user = userMapper.selectByPrimaryKey(uid);
-
-        return user;
-    }
-
-    public Student getStudentById(String sid) {
-        Student student = studentMapper.selectByExampleKey(sid);
-        return student;
-    }
+public interface UserService {
 
 
-    public Teacher getTeacherById(String tid){
+     User getUserById(String uid);
 
-        Teacher teacher = teacherMapper.selectByExampleKey(tid);
-
-        return teacher;
-    }
-
-    public void updateStudent(Student student){
-
-        studentMapper.updateByPrimaryKeySelective(student);
-
-    }
-
-    public void updateTeacher(Teacher teacher){
+     Student getStudentById(String sid) ;
 
 
-        teacherMapper.updateByPrimaryKeySelective(teacher);
+     Teacher getTeacherById(String tid);
 
-    }
+     void updateStudent(Student student);
 
-    public void updatePassword(String uId, String uPassCon) {
-        User user = new User();
-        user.setUserId(uId);
-        user.setUserPassword(uPassCon);
-        userMapper.updateByPrimaryKeySelective(user);
-    }
+     void updateTeacher(Teacher teacher);
 
-    public List<User> searchUser(User user) {
+     void updatePassword(String uId, String uPassCon) ;
 
-        List<User> users = userMapper.findByUserId(user);
-        return users;
-    }
+     List<User> searchUser(User user) ;
 
-    public void addUser(User user){
-        userMapper.insertSelective(user);
-    }
+     void addUser(User user);
 }

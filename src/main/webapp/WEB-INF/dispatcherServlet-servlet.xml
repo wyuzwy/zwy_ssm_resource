@@ -28,6 +28,8 @@
         <property name="suffix" value=".jsp"></property>
     </bean>
 
+    <!--资源映射-->
+
     <mvc:resources mapping="/upload/images/**" location="/upload/images/"></mvc:resources>
     <mvc:resources mapping="/upload/resources/**" location="/upload/resources/"></mvc:resources>
     <mvc:resources mapping="/static/**" location="/static/"></mvc:resources>
@@ -36,15 +38,18 @@
     <!--拦截器：拦截未登录的情况！！！-->
     <mvc:interceptors>
         <mvc:interceptor>
-            <mvc:mapping path="/**"/>
+            <mvc:mapping path="/**"/>  <!-- 因为我对所有链接都拦截，所以静态资源的链接也被拦截了 -->
             <mvc:exclude-mapping path="/user/login"></mvc:exclude-mapping>
             <mvc:exclude-mapping path="/resource/all"></mvc:exclude-mapping>
             <mvc:exclude-mapping path="/post/all"></mvc:exclude-mapping>
             <mvc:exclude-mapping path="/comment/all"></mvc:exclude-mapping>
             <mvc:exclude-mapping path="register/register"></mvc:exclude-mapping>
+            <mvc:exclude-mapping path="/static/**"></mvc:exclude-mapping><!-- 所以要把静态资源的样式设置成不拦截 -->
             <bean class="com.zhangwenyu.resource.interceptor.LoginInterceptor"></bean>
         </mvc:interceptor>
     </mvc:interceptors>
+
+
     <!--两个标准配置-->
     <!--讲springmvc不能处理的请求交给tomcat-->
     <mvc:default-servlet-handler></mvc:default-servlet-handler>
