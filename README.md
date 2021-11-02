@@ -7,6 +7,6 @@
 </tr>
 <tr>
 <td>1 </td>
-<td>1  2</td>
+<td>1 </br> 2</td>
 </tr>
 </table>
